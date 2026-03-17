@@ -1,0 +1,41 @@
+services:
+
+  mongo:
+    image: mongo:6
+    container_name: mongo_db
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - app-network
+
+
+  backend:
+    #build: ./backend
+    image: devansh0766/full-stack-app-deploy:v1
+    container_name: node_backend
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/mydb
+    depends_on:
+      - mongo
+    networks:
+      - app-network
+
+
+  nginx:
+    image: nginx:alpine
+    container_name: nginx_server
+    ports:
+      - "81:80"
+    volumes:
+      - ./frontend:/usr/share/nginx/html
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - backend
+    networks:
+      - app-network
+
+networks:
+  app-network:
+
+volumes:
+  mongo-data:
